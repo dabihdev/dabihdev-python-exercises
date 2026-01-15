@@ -1,12 +1,3 @@
----
-# yaml-language-server: $schema=schemas\page.schema.json
-Object type:
-    - Page
-Creation date: "2026-01-15T08:33:04Z"
-Created by:
-    - Misty Horseshoe
-id: bafyreib7y2op6lzuc2jzuibszzfzik7ihp57qcqqeevbrz2grys54jt3li
----
 # Functions Practice   
    
 Here is a curated list of 10 Python function challenges, ranging from introductory logic to more complex algorithmic thinking. Each is designed to mimic the style of competitive programming platforms like LeetCode or Codewars.   

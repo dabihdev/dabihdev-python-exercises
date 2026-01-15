@@ -1,12 +1,3 @@
----
-# yaml-language-server: $schema=schemas\page.schema.json
-Object type:
-    - Page
-Creation date: "2026-01-15T08:44:48Z"
-Created by:
-    - Misty Horseshoe
-id: bafyreibwqcqz3cdoubcgews6qhx2yi6flfoyyvccxylw5u2zn3sf7fnwpy
----
 # Common Tools Cheat Sheet (basics)   
 This cheat sheet focuses on the specific "tools" used to solve the 10 problems above. It’s organized by the type of data your student is working with.   
  --- 
