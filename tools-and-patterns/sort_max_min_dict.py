@@ -2,10 +2,10 @@
 d = {'Audi':100, 'BMW':1292, 'Jaguar': 210000, 'Hyundai' : 88}
 
 # get maximum value
-print(max(d))
+print(max(d, key=d.get))
 
 # get minimum value
-print(min(d))
+print(min(d, key=d.get))
 
 # sorted sorts keys (alphabetically)
 print(sorted(d))
