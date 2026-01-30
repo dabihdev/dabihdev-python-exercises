@@ -7,10 +7,13 @@ def walk_iterative(steps):
 
 # RECURSIVE
 def walk_recursive(steps):
+    # base case
     if steps == 0:
         return
+
+    # recursion (decrease steps)
     walk_recursive(steps - 1)
     print(f"You take step #{steps}")
 
-# walk_iterative(100)
-walk_recursive(100)
+# walk_iterative(10)
+walk_recursive(10)
