@@ -1,15 +1,25 @@
 import json
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field # Add Field here
 
 app = FastAPI()
 DB_FILE = "books.json"
 
 # This is the 'Template' for a book
-class Book(BaseModel):
+""" class Book(BaseModel):
     id: int
     title: str
-    author: str
+    author: str """
+
+class Book(BaseModel):
+    # ID must be greater than 0
+    id: int = Field(gt=0, description="The ID must be a positive integer")
+
+    # Title must be between 1 and 100 characters
+    title: str = Field(min_length=1, max_length=100)
+
+    # Author cannot be empty
+    author: str = Field(min_length=2, max_length=50)
 
 # --- Helper Functions (The 'Waiters' fetching from the kitchen) ---
 
@@ -64,3 +74,20 @@ def delete_book(book_id: int):
     write_db(updated_books)
     
     return {"message": f"Book with ID {book_id} has been deleted."}
+
+@app.put("/books/{book_id}")
+def update_book(book_id: int, updated_book: Book):
+    """Updates an existing book in the JSON file"""
+    books = read_db()
+
+    # Look for the book index (its position in the list)
+    for index, book in enumerate(books):
+        if book["id"] == book_id:
+            # We found it! Now we replace the old data with the new data
+            # .dict() converts the Pydantic object into a JSON-friendly dictionary
+            books[index] = updated_book.__dict__
+            write_db(books)
+            return {"message": "Book updated!", "data": updated_book}
+
+    # If the loop finishes without finding the ID
+    raise HTTPException(status_code=404, detail="Book not found to update")
