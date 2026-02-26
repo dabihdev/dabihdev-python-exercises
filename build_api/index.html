@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Book Library</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
+        .book-card { border: 1px solid #ddd; padding: 10px; margin: 10px 0; display: flex; justify-content: space-between; }
+        form { background: #f4f4f4; padding: 15px; border-radius: 5px; }
+        input { display: block; margin: 10px 0; width: 100%; padding: 8px; }
+        button { cursor: pointer; background: #007bff; color: white; border: none; padding: 10px; }
+        .delete-btn { background: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <h1>📚 Book Manager</h1>
+
+    <form id="bookForm">
+        <h3>Add New Book</h3>
+        <input type="number" id="bookId" placeholder="ID (e.g. 4)" required>
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="text" id="author" placeholder="Author" required>
+        <button type="submit">Save Book</button>
+    </form>
+
+    <hr>
+
+    <h3>Library Inventory</h3>
+    <div id="bookList">Loading books...</div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000/books";
+
+        // 1. FETCH and Display Books
+        async function fetchBooks() {
+            const response = await fetch(API_URL);
+            const books = await response.json();
+            const listDiv = document.getElementById('bookList');
+            listDiv.innerHTML = '';
+
+            books.forEach(book => {
+                listDiv.innerHTML += `
+                    <div class="book-card">
+                        <div>
+                            <strong>${book.title}</strong> by ${book.author} (ID: ${book.id})
+                        </div>
+                        <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        // 2. POST a New Book
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newBook = {
+                id: parseInt(document.getElementById('bookId').value),
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value
+            };
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBook)
+            });
+
+            if (response.ok) {
+                fetchBooks(); // Refresh the list
+                e.target.reset(); // Clear form
+            } else {
+                alert("Error saving book. Check if ID is unique and > 0!");
+            }
+        });
+
+        // 3. DELETE a Book
+        async function deleteBook(id) {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchBooks();
+            }
+        }
+
+        // Initial load
+        fetchBooks();
+    </script>
+</body>
+</html>

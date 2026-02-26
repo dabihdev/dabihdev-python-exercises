@@ -1,8 +1,22 @@
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field # Add Field here
+from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# without this, the computer will not allow the front-end to communicate
+# with the back-end. It regards it as a different server and thinks it wants
+# to attack you.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (fine for local dev)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],
+)
+
 DB_FILE = "books.json"
 
 # This is the 'Template' for a book
@@ -13,13 +27,13 @@ DB_FILE = "books.json"
 
 class Book(BaseModel):
     # ID must be greater than 0
-    id: int = Field(gt=0, description="The ID must be a positive integer")
+    id: int = Field(gt=0, msg="The ID must be a positive integer")
 
     # Title must be between 1 and 100 characters
     title: str = Field(min_length=1, max_length=100)
 
     # Author cannot be empty
-    author: str = Field(min_length=2, max_length=50)
+    author: str #= Field(min_length=2, max_length=50)
 
 # --- Helper Functions (The 'Waiters' fetching from the kitchen) ---
 
@@ -34,9 +48,20 @@ def write_db(data):
 # --- API Endpoints (The 'Menu' items) ---
 
 @app.get("/books")
-def get_all_books():
+def get_all_books(author: Optional[str] = None):
     """Returns every book in our JSON file"""
-    return read_db()
+    # read db books
+    books = read_db()
+
+    # if optional parameter author is given,
+    # filter results
+    if author:
+        filtered_books = [book for book in books if book['author'].lower() == author.lower()]
+        return filtered_books
+    
+    # otherwise return all the books
+    return books
+
 
 @app.post("/books")
 def add_book(book: Book):
