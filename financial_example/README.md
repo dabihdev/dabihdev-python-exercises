@@ -1,0 +1,1 @@
+A simple demonstration of how Python can help in quickly handling financial data.
