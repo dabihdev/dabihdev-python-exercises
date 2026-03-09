@@ -5,16 +5,32 @@
     <title>My Book Library</title>
     <style>
         body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
-        .book-card { border: 1px solid #ddd; padding: 10px; margin: 10px 0; display: flex; justify-content: space-between; }
-        form { background: #f4f4f4; padding: 15px; border-radius: 5px; }
-        input { display: block; margin: 10px 0; width: 100%; padding: 8px; }
-        button { cursor: pointer; background: #007bff; color: white; border: none; padding: 10px; }
+        /* MODIFICATION: Added align-items to center the buttons vertically against the text */
+        .book-card { border: 1px solid #ddd; padding: 10px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        form { background: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px;}
+        /* MODIFICATION: Added box-sizing so inputs don't overflow their containers */
+        input { display: block; margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box; }
+        button { cursor: pointer; background: #007bff; color: white; border: none; padding: 10px; border-radius: 4px; }
         .delete-btn { background: #dc3545; }
+        
+        /* --- NEW STYLES --- */
+        /* Styling for the new "View" button */
+        .view-btn { background: #28a745; margin-right: 5px; }
+        /* Styling for the new filter section box */
+        .filter-section { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        /* Making the filter input sit next to the buttons */
+        .filter-section input { display: inline-block; width: auto; flex-grow: 1; margin-right: 10px; }
+        .filter-section .flex-row { display: flex; align-items: center; }
+        /* Styling for the box that shows a single book's details when clicked */
+        .single-book-container { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: none; }
     </style>
 </head>
 <body>
 
     <h1>📚 Book Manager</h1>
+
+    <div id="singleBookView" class="single-book-container">
+        </div>
 
     <form id="bookForm">
         <h3>Add New Book</h3>
@@ -26,32 +42,109 @@
 
     <hr>
 
+    <div class="filter-section">
+        <h3>Filter Library</h3>
+        <div class="flex-row">
+            <input type="text" id="filterAuthorInput" placeholder="Enter author name...">
+            <button onclick="applyFilter()" style="margin-right: 5px;">Filter</button>
+            <button onclick="clearFilter()" style="background: #6c757d;">Clear</button>
+        </div>
+    </div>
+
     <h3>Library Inventory</h3>
     <div id="bookList">Loading books...</div>
 
     <script>
+        // Make sure this matches your FastAPI server address and port
         const API_URL = "http://127.0.0.1:8000/books";
 
-        // 1. FETCH and Display Books
-        async function fetchBooks() {
-            const response = await fetch(API_URL);
+        // 1. FETCH and Display Books (MODIFIED for filtering)
+        // We added a default parameter `authorQuery = ""`
+        async function fetchBooks(authorQuery = "") {
+            // Base URL fetches all books.
+            let fetchUrl = API_URL; 
+            
+            // If an authorQuery was passed in, we append it to the URL.
+            // In main.py, you defined: def get_all_books(author: Optional[str] = None):
+            // This ?author= syntax is how the frontend passes that optional parameter!
+            if (authorQuery !== "") {
+                fetchUrl += `?author=${encodeURIComponent(authorQuery)}`;
+            }
+
+            const response = await fetch(fetchUrl);
             const books = await response.json();
             const listDiv = document.getElementById('bookList');
             listDiv.innerHTML = '';
 
+            // If the backend returns an empty list, let the user know
+            if (books.length === 0) {
+                listDiv.innerHTML = '<p>No books found.</p>';
+                return;
+            }
+
             books.forEach(book => {
+                // MODIFICATION: Added a "View" button next to the "Delete" button
+                // It calls the viewBook() function, passing the book's unique ID
                 listDiv.innerHTML += `
                     <div class="book-card">
                         <div>
                             <strong>${book.title}</strong> by ${book.author} (ID: ${book.id})
                         </div>
-                        <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>
+                        <div>
+                            <button class="view-btn" onclick="viewBook(${book.id})">View</button>
+                            <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        // 2. POST a New Book
+        // --- NEW JAVASCRIPT FUNCTIONS ---
+
+        // NEW FEATURE: Apply the Author Filter
+        function applyFilter() {
+            // Grab the text the user typed into the filter input
+            const authorText = document.getElementById('filterAuthorInput').value;
+            // Call fetchBooks, but this time pass the author text so it alters the URL
+            fetchBooks(authorText);
+        }
+
+        // NEW FEATURE: Clear the Filter
+        function clearFilter() {
+            // Empty the input box
+            document.getElementById('filterAuthorInput').value = '';
+            // Call fetchBooks with nothing, which fetches all books again
+            fetchBooks();
+        }
+
+        // NEW FEATURE: View a Single Book
+        async function viewBook(id) {
+            // This targets the specific endpoint in main.py: @app.get("/books/{book_id}")
+            const response = await fetch(`${API_URL}/${id}`);
+            
+            if (response.ok) {
+                const book = await response.json();
+                
+                // Grab the single book container
+                const viewDiv = document.getElementById('singleBookView');
+                
+                // Inject the specific book's data into the HTML
+                viewDiv.innerHTML = `
+                    <h3>📖 Book Details</h3>
+                    <p><strong>Title:</strong> ${book.title}</p>
+                    <p><strong>Author:</strong> ${book.author}</p>
+                    <p><strong>Database ID:</strong> ${book.id}</p>
+                    <button onclick="document.getElementById('singleBookView').style.display='none'">Close</button>
+                `;
+                
+                // Make the hidden box visible
+                viewDiv.style.display = 'block';
+            } else {
+                alert("Could not fetch book details!");
+            }
+        }
+
+        // 2. POST a New Book (Unchanged, just added some error handling clarity)
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -71,14 +164,19 @@
                 fetchBooks(); // Refresh the list
                 e.target.reset(); // Clear form
             } else {
-                alert("Error saving book. Check if ID is unique and > 0!");
+                // If it fails, Pydantic in main.py usually sends back detail on what went wrong
+                const errorData = await response.json();
+                console.error(errorData);
+                alert("Error saving book. Check console for details. (Did you use an ID > 0?)");
             }
         });
 
-        // 3. DELETE a Book
+        // 3. DELETE a Book (Slightly modified to hide the View box if we delete the book we are currently viewing)
         async function deleteBook(id) {
             const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
             if (response.ok) {
+                // Hide the single book view just in case we deleted the book we were looking at
+                document.getElementById('singleBookView').style.display = 'none';
                 fetchBooks();
             }
         }
