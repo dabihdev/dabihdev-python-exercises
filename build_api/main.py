@@ -1,7 +1,6 @@
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field # Add Field here
-from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -39,7 +38,8 @@ class Book(BaseModel):
 
 def read_db():
     with open(DB_FILE, "r") as f:
-        return json.load(f)
+        data= json.load(f)
+        return data
 
 def write_db(data):
     with open(DB_FILE, "w") as f:
@@ -48,7 +48,7 @@ def write_db(data):
 # --- API Endpoints (The 'Menu' items) ---
 
 @app.get("/books")
-def get_all_books(author: Optional[str] = None):
+def get_all_books(author: str = None):
     """Returns every book in our JSON file"""
     # read db books
     books = read_db()
