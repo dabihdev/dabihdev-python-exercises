@@ -1,4 +1,6 @@
-from converter import *
+#from converter import *
+
+from converter import decimal_to_binary
 
 
 """ import converter
