@@ -26,7 +26,7 @@ DB_FILE = "books.json"
 
 class Book(BaseModel):
     # ID must be greater than 0
-    id: int = Field(gt=0, msg="The ID must be a positive integer")
+    id: int = Field(gt=0)
 
     # Title must be between 1 and 100 characters
     title: str = Field(min_length=1, max_length=100)
