@@ -5,6 +5,14 @@
 # Pagina web di riferimento: https://www.w3schools.com/python/python_dictionaries_loop.asp
 
 
+# Qualche "schema" comune in questi esercizi:
+# -> .items(): È il tuo migliore amico quando ti servono sia la chiave che il valore contemporaneamente.
+# -> Inizializzazione: Negli esercizi come il n. 5 o il n. 7, ricordati di creare prima il dizionario
+#    vuoto ({}) e poi di aggiungere gli elementi "strada facendo" dentro il ciclo.
+# -> Accumulatori: Per le somme (es. n. 2), definisci una variabile totale = 0 prima di iniziare il
+#    ciclo for.
+
+
 # Esercizio 1: Iterazione semplice (Chiavi e Valori)
 # Obiettivo: Usa un ciclo for e il metodo .items() per stampare ogni frutto e la sua quantità
 # Formato richiesto: "Frutto: [nome], Quantità: [numero]"
