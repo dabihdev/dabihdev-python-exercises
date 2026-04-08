@@ -2,6 +2,8 @@
 # ESERCIZI SUI DIZIONARI PYTHON
 # ==========================================
 
+# Pagina web sui metodi dei dizionari: https://www.w3schools.com/python/python_dictionaries_methods.asp
+
 # Esercizio 1: Accedi al valore di una chiave specifica
 # Obiettivo: Stampa il nome della capitale
 capitale = {"Italia": "Roma", "Francia": "Parigi", "Spagna": "Madrid"}
@@ -15,7 +17,7 @@ auto = {"marca": "Fiat", "modello": "500", "anno": 2015}
 studente = {"nome": "Marco", "corso": "Python"}
 
 # Esercizio 4: Rimuovi una coppia chiave-valore
-# SUGGERIMENTO: usa il metodo .pop() o la parola chiave del
+# SUGGERIMENTO: usa il metodo .pop() e la parola chiave
 # Obiettivo: Rimuovi la chiave "prezzo" dal dizionario
 prodotto = {"id": 101, "nome": "Mouse", "prezzo": 25.50}
 
