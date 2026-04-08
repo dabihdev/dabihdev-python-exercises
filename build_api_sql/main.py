@@ -53,7 +53,7 @@ def get_db():
 
 # --- API ENDPOINTS ---
 
-@app.get("/books")
+@app.get("/books") # get all
 def get_all_books(author: str = None, db: Session = Depends(get_db)):
     query = db.query(BookTable)
     if author:
