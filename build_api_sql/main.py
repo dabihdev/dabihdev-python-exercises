@@ -68,7 +68,9 @@ def add_book(book: BookSchema, db: Session = Depends(get_db)):
     db_book = BookTable(id=book.id, title=book.title, author=book.author)
     db.add(db_book)
     db.commit()
-    db.refresh(db_book)
+    db.refresh(db_book) # SQLAlchemy often "expires" the data held in your local Python object (db_book) because it assumes the database might have changed things during the save process.
+    # db.expire(db_book)
+    # print(db_book.__dict__)
     return db_book
 
 @app.get("/books/{book_id}")
