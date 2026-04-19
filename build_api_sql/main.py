@@ -98,4 +98,5 @@ def update_book(book_id: int, updated_book: BookSchema, db: Session = Depends(ge
     db_book.title = updated_book.title
     db_book.author = updated_book.author
     db.commit()
+    db.refresh(db_book)
     return db_book
