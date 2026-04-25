@@ -1,22 +1,55 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 
-# Our "Database" (a simple Python list for now)
-tasks = ["Learn Flask", "Build a web app", "Take over the world"]
+# Database Configuration (SQLite)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-@app.route('/', methods=['GET', 'POST'])
+# Database Model
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(200), nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Task {self.id}>'
+
+# Create the database within the app context
+with app.app_context():
+    db.create_all()
+
+@app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        # Get the task from the form input
-        new_task = request.form.get('task_content')
-        if new_task:
-            tasks.append(new_task)
-        # Redirect back to the home page to see the updated list
-        return redirect(url_for('index'))
-    
-    # Send the tasks list to the Jinja template
-    return render_template('index.html', tasks=tasks)
+        task_content = request.form['content']
+        new_task = Task(content=task_content)
+
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue adding your task'
+
+    else:
+        # Query the database for all tasks, sorted by date
+        tasks = Task.query.order_by(Task.date_created).all()
+        return render_template('index.html', tasks=tasks)
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    task_to_delete = Task.query.get_or_404(id)
+
+    try:
+        db.session.delete(task_to_delete)
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was a problem deleting that task'
 
 if __name__ == "__main__":
     app.run(debug=True)
