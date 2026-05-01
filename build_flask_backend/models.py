@@ -1,6 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+import datetime as dt
 
-# Database Model
+# We initialize the db object, but don't link the app yet
+db = SQLAlchemy()
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
@@ -8,4 +12,3 @@ class Task(db.Model):
 
     def __repr__(self):
         return f'<Task {self.id}>'
-    

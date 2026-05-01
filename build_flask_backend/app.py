@@ -1,25 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import datetime as dt
+from models import db, Task
 
 app = Flask(__name__)
 
 # Database Configuration (SQLite)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
-# Database Model
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.now(dt.timezone.utc))
+# Link the database to the app
+db.init_app(app)
 
-    def __repr__(self):
-        return f'<Task {self.id}>'
-
-# Create the database within the app context
+# Create the database tables within the app context
 with app.app_context():
     db.create_all()
 
@@ -48,7 +39,7 @@ def delete(id):
     try:
         db.session.delete(task_to_delete)
         db.session.commit()
-        return redirect('/')
+        return redirect(url_for("index"))
     except:
         return 'There was a problem deleting that task'
 
