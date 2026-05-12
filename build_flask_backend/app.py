@@ -3,6 +3,10 @@ from models import db, Task
 
 app = Flask(__name__)
 
+
+# what happens if 2 persons at the same time try to modify the same data?
+
+
 # Database Configuration (SQLite)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -13,6 +17,7 @@ db.init_app(app)
 # Create the database tables within the app context
 with app.app_context():
     db.create_all()
+
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
