@@ -78,7 +78,7 @@ risultati = []
 # ------------------------------------------------------------------------------
 print("\n--- Esercizio 4 ---")
 parole = ["casa", "computer", "python", "it"]
-parola_piu_lunga = parole[0] if parole else ""
+parola_piu_lunga = parole[0]
 
 # SCRIVI QUI IL TUO CODICE
 
